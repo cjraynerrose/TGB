@@ -183,5 +183,74 @@ namespace TGB.Domain
                 .Where(r => r.Id == recordId)
                 .FirstOrDefaultAsync();
         }
+
+        // NOTES
+
+        public async Task<List<Note>> GetNotesForMenu(string groupBankName)
+        {
+            return await _context.Notes
+                .Where(n => n.GroupBank.Name == groupBankName)
+                .Select(n => new Note
+                {
+                    Id = n.Id,
+                    Title = n.Title,
+                    Tags = n.Tags
+                })
+                .ToListAsync();
+        }
+
+        public async Task<Note> CreateNote(Note note, Guid groupBankId)
+        {
+            var bank = await _context.GroupBanks
+                .Where(gb => gb.Id == groupBankId)
+                .FirstOrDefaultAsync();
+
+            if (bank == null)
+            {
+                throw new Exception("Group bank not found");
+            }
+
+            note.GroupBank = bank;
+            _context.Notes.Add(note);
+
+            await _context.SaveChangesAsync();
+            return note;
+        }
+
+        public async Task<Note> UpdateNote(Note note)
+        {
+            var local = _context.Set<Note>()
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(note.Id));
+
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
+            _context.Entry(note).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return note;
+        }
+
+        public async Task DeleteNote(Guid noteId)
+        {
+            Note note = await _context.Notes
+                .Where(n => n.Id == noteId)
+                .FirstOrDefaultAsync();
+
+            if (note != null)
+            {
+                _context.Notes.Remove(note);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Note> GetNote(Guid noteId)
+        {
+            return await _context.Notes
+                .Where(n => n.Id == noteId)
+                .FirstOrDefaultAsync();
+        }
     }
 }

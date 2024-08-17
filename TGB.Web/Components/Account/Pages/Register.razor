@@ -14,6 +14,7 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IConfiguration Configuration
 
 <PageTitle>Register</PageTitle>
 
@@ -25,6 +26,11 @@
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
             <DataAnnotationsValidator />
             <h2>Create a new account.</h2>
+            <p class="text-bg-warning">
+                <b>Do not</b> use a password from any other account.<br />
+                This application is <b>secure enough</b>, i.e., encrypts, salts, and hashes your credentials,
+                but for the love of all that is holy let your browser pick a random password and save it.
+            </p>
             <hr />
             <ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
@@ -67,6 +73,14 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
+        var allowedEmails = Configuration.GetSection("AllowedEmails").Get<string[]>();
+        if(allowedEmails != null && !allowedEmails.Contains(Input.Email))
+        {
+            identityErrors = new List<IdentityError> { new IdentityError { Code = "NotAllowed", Description = "Email is not allowed" } };
+            Logger.LogError("Email '{InvalidEmail}' is not allowed", Input.Email);
+            return;
+        }
+
         var user = CreateUser();
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);

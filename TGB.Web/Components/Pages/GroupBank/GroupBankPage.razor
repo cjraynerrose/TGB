@@ -13,6 +13,11 @@
     <Authorized>
         <div class="d-flex">
             <h1>@RouteBankName</h1>
+            <div class="mx-auto">
+                <InputText @bind-Value="SearchQuery" placeholder="Search name and desc" />
+                <button>Search</button>
+                <button @onclick="() => SearchQuery = string.Empty">Clear</button>
+            </div>
             <div class="ms-auto">
                 <InputText @bind-Value="TagQuery" placeholder="Filter tags" />
                 <button>Go</button>
@@ -58,7 +63,7 @@
 
                     </tr>
 
-                    @foreach(var record in FilterRecordsByTag())
+                    @foreach (var record in Filter())
                     {
                         var css = record.UnsavedChanges ? "table-warning" : "";
 
@@ -105,6 +110,7 @@
     private bool UnsavedChanges = false;
 
     private string TagQuery = string.Empty;
+    private string SearchQuery = string.Empty;
 
 
 
@@ -138,26 +144,50 @@
         }
     }
 
-    private List<RecordVM> FilterRecordsByTag()
+    private List<RecordVM> Filter()
     {
-        if(BankVM is null)
+        if (BankVM is null)
         {
             return new();
         }
 
+        var records = BankVM.Records;
+
+        records = FilterRecordsByTag(records);
+        records = FilterRecordaByNameandDesc(records);
+
+        return records;
+    }
+
+    private List<RecordVM> FilterRecordsByTag(List<RecordVM> records)
+    {
         if(string.IsNullOrWhiteSpace(TagQuery))
         {
-            return BankVM.Records;
+            return records;
         }
 
         var queryTags = TagHelpers.UnflattenTags(TagHelpers.FormatTags(TagQuery));
 
         if(queryTags is null || queryTags.Count == 0)
         {
-            return BankVM.Records;
+            return records;
         }
 
-        return BankVM.Records.Where(r => TagHelpers.UnflattenTags(r.Tags).Intersect(queryTags).Any()).ToList();
+        return records.Where(r => TagHelpers.UnflattenTags(r.Tags).Intersect(queryTags).Any()).ToList();
+    }
+
+    private List<RecordVM> FilterRecordaByNameandDesc(List<RecordVM> records)
+    {
+        if(string.IsNullOrWhiteSpace(SearchQuery))
+        {
+            return records;
+        }
+
+        return records
+            .Where(r => 
+                r.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)
+                || r.Description.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 
 

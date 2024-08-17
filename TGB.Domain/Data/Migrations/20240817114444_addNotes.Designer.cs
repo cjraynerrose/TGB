@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TGB.Domain.Data;
 
@@ -11,9 +12,11 @@ using TGB.Domain.Data;
 namespace TGB.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240817114444_addNotes")]
+    partial class addNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,22 +231,22 @@ namespace TGB.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Action")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NewValues")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OldValues")
+                    b.Property<string>("Action")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("Time")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid?>("TypeId")
+                    b.Property<Guid>("TypeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("User")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -276,7 +279,7 @@ namespace TGB.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("GroupBankId")
+                    b.Property<Guid?>("GroupBankId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Tags")
@@ -378,13 +381,9 @@ namespace TGB.Domain.Migrations
 
             modelBuilder.Entity("TGB.Domain.Entities.Note", b =>
                 {
-                    b.HasOne("TGB.Domain.Entities.GroupBank", "GroupBank")
+                    b.HasOne("TGB.Domain.Entities.GroupBank", null)
                         .WithMany("Notes")
-                        .HasForeignKey("GroupBankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GroupBank");
+                        .HasForeignKey("GroupBankId");
                 });
 
             modelBuilder.Entity("TGB.Domain.Entities.Record", b =>

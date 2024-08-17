@@ -1,0 +1,30 @@
+﻿@page "/CreateGroupBank"
+@rendermode InteractiveServer
+@inject Service service
+@inject AuthenticationStateProvider asProvider
+@inject NavigationManager navManager
+
+<h3>createGroupBank</h3>
+
+<InputText @bind-Value="Name" placeholder="Name" />
+<Button @onclick="CreateNewGroupBank">Create</Button>
+
+@code {
+    private string UserId { get; set; }
+    public string Name { get; set; }
+
+    private async Task CreateNewGroupBank()
+    {
+        Console.WriteLine("Creating new group bank");
+
+        var gb = await service.CreateGroupBank(Name, [UserId]);
+
+        navManager.NavigateTo("/");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await asProvider.GetAuthenticationStateAsync())?.User;
+        UserId = user.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+    }
+}

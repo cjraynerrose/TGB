@@ -1,0 +1,186 @@
+﻿@page "/Bank/{RouteBankName}"
+@rendermode InteractiveServer
+@inject Service service
+@inject AuthenticationStateProvider asProvider
+@using System.Security.Claims
+@using TGB.Domain.Entities
+@using TGB.Web.Models
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>You are not authorized to view this page.</p>
+    </NotAuthorized>
+    <Authorized>
+        <div class="d-flex">
+            <h1>@RouteBankName</h1>
+            <div class="ms-auto">
+                <InputText @bind-Value="TagQuery" placeholder="Filter tags" />
+                <button>Go</button>
+                <button @onclick="() => TagQuery = string.Empty">Clear</button>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <td scope="col">Name</td>
+                    <td scope="col">Amount</td>
+                    <td scope="col">Description</td>
+                    <td scope="col">Tags</td>
+                    <td scope="col">Actions</td>
+                </tr>
+            </thead>
+            <tbody>
+                @if(BankVM == null)
+                {
+                    <tr>
+                        <td colspan="5">@TableDataPlaceholder</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td scope="row">
+                            <InputText @bind-Value="NewRecordVM.Name" placeholder="Name" />
+                        </td>
+                        <td>
+                            <InputNumber @bind-Value="NewRecordVM.Amount" placeholder="Amount"/>
+                        </td>
+                        <td>
+                            <InputText @bind-Value="NewRecordVM.Description" placeholder="Description" />
+                        </td>
+                        <td>
+                            <InputText @bind-Value="NewRecordVM.Tags" placeholder="semi-colon;seperated;tags" />
+                        </td>
+                        <td>
+                            <button @onclick="AddRecord">Add</button>
+                        </td>
+
+                    </tr>
+
+                    @foreach(var record in FilterRecordsByTag())
+                    {
+                        var css = record.UnsavedChanges ? "table-warning" : "";
+
+                        <tr @key=record class="@css">
+                            <td scope="row">
+                                <InputText @bind-Value="record.Name" />
+                            </td>
+                            <td>
+                                <InputNumber @bind-Value="record.Amount" />
+                            </td>
+                            <td>
+                                <InputText @bind-Value="record.Description" />
+                            </td>
+                            <td>
+                                <InputText @bind-Value="record.Tags" />
+                            </td>
+                            <td>
+                                <button @onclick="@(e => UpdateRecord(e, record))">Update</button>
+                                <button @onclick="@(e => DeleteRecord(e, record))">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </Authorized>
+</AuthorizeView>
+
+
+
+@code {
+    [Parameter]
+    public string? RouteBankName { get; set; }
+
+    public GroupBankVM BankVM;
+
+    private ClaimsPrincipal User;
+
+
+    private RecordVM NewRecordVM = new();
+
+    private string TableDataPlaceholder = "Loading...";
+
+    private bool UnsavedChanges = false;
+
+    private string TagQuery = string.Empty;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = (await asProvider.GetAuthenticationStateAsync())?.User;
+        if(User is null)
+        {
+            return;
+        }
+
+        var banks = await service.GetGroupBanksForUser(User);
+        var id = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
+
+        if(id is null)
+        {
+            return;
+        }
+
+        var bank = await service.GetGroupBank(id.Value);
+        BankVM = new GroupBankVM(bank);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if(!firstRender && BankVM is null)
+        {
+            TableDataPlaceholder = "Bank not found.";
+        }
+    }
+
+    private List<RecordVM> FilterRecordsByTag()
+    {
+        if(BankVM is null)
+        {
+            return new();
+        }
+
+        if(string.IsNullOrWhiteSpace(TagQuery))
+        {
+            return BankVM.Records;
+        }
+
+        var queryTags = TagHelpers.UnflattenTags(TagHelpers.FormatTags(TagQuery));
+
+        if(queryTags is null || queryTags.Count == 0)
+        {
+            return BankVM.Records;
+        }
+
+        return BankVM.Records.Where(r => TagHelpers.UnflattenTags(r.Tags).Intersect(queryTags).Any()).ToList();
+    }
+
+
+    private async Task UpdateRecord(MouseEventArgs e, RecordVM recordVM)
+    {
+        var record = await service.UpdateRecord(recordVM.ToRecord());
+
+        var idx = BankVM.Records.FindIndex(r => r.Id == record.Id);
+        BankVM.Records[idx] = new RecordVM(record);
+    }
+
+
+    private async Task AddRecord()
+    {
+        var record = await service.CreateRecord(NewRecordVM.ToRecord(), BankVM.Id);
+        BankVM.Records.Add(new RecordVM(record));
+
+        NewRecordVM = new();
+    }
+
+    private async Task DeleteRecord(MouseEventArgs e, RecordVM record)
+    {
+        await service.DeleteRecord(record.Id);
+        BankVM.Records.Remove(record);
+    }
+}

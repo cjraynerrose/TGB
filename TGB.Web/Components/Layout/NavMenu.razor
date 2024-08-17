@@ -1,6 +1,9 @@
-﻿@implements IDisposable
+﻿@using TGB.Web.Models
+@implements IDisposable
 
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider asProvider
+@inject Service service
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -25,6 +28,36 @@
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
                     </NavLink>
                 </div>
+
+                <hr />
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="CreateGroupBank">Create New Group Bank</NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <em>Here are your banks:</em>
+                </div>
+
+                @if (banks == null)
+                {
+                    <p><em>Nothing to show...</em></p>
+                }
+                else
+                {
+                    @foreach (var bank in banks)
+                    {
+                        var url = $"Bank/{bank.Name}";
+                        <div class="nav-item px-3">
+                            <a class="nav-link" href="@url">
+                                • @bank.Name
+                            </a>
+                        </div>
+                    }
+                }
+
+
+
                 <div class="nav-item px-3">
                     <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
@@ -53,6 +86,7 @@
 
 @code {
     private string? currentUrl;
+    private List<GroupBankVM> banks;
 
     protected override void OnInitialized()
     {
@@ -69,6 +103,24 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+
+    private async Task<List<GroupBankVM>> GetUserBanks()
+    {
+        var user = (await asProvider.GetAuthenticationStateAsync())?.User;
+        if (user == null || !user.HasClaim(c => c.Type == TgbClaimTypes.GroupBankUserClaim))
+        {
+            return null;
+        }
+
+        var gbs = await service.GetGroupBanksForUser(user);
+        return gbs.Select(gb => new GroupBankVM(gb)).ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        banks = await GetUserBanks();
     }
 }
 

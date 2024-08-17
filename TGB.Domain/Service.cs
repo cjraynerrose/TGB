@@ -14,10 +14,10 @@ namespace TGB.Domain
 
         public Service(
             ILogger logger
-            , ApplicationDbContext context)
+            , IDbContextFactory<ApplicationDbContext> dbFactory)
         {
             _logger = logger;
-            _context = context;
+            _context = dbFactory.CreateDbContext();
         }
 
         public async Task<GroupBank> CreateGroupBank(string name, List<string> userIds)

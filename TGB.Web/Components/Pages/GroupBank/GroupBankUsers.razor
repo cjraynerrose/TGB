@@ -1,0 +1,121 @@
+﻿@page "/Bank/{RouteBankName}/Users"
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject Service service
+@inject AuthenticationStateProvider asProvider
+
+<AuthorizeView>
+    <Authorized>
+        <h3>GroupBankUsers</h3>
+
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="alert @MessageClass d-flex">
+                @Message
+                <button class="ms-auto btn" @onclick="() => Message = string.Empty">
+                    <span>X</span>
+                </button>
+            </div>
+        }
+
+        <div>
+            <InputText @bind-Value="EmailToAdd" placeholder="Email to add" />
+            <button @onclick="AddUser">Add</button>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <td scope="col">Name</td>
+                    <td scope="col">Email</td>
+                    <td scope="col">Actions</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Users)
+                {
+                    <tr>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <button @onclick="@(e => RemoveUser(e, user.Id))">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public string RouteBankName { get; set; }
+
+    private Guid? BankId { get; set; }
+
+    private ClaimsPrincipal User;
+    List<IdentityUser> Users = [];
+
+    private string EmailToAdd { get; set; }
+
+    private string Message { get; set; }
+    private string MessageClass {get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = (await asProvider.GetAuthenticationStateAsync())?.User;
+        if (User is null)
+        {
+            return;
+        }
+
+        var banks = await service.GetGroupBanksForUser(User);
+        BankId = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
+
+        if (BankId is null)
+        {
+            return;
+        }
+
+        Users = await service.GetUsersForBank(BankId.Value);
+    }
+
+    private async Task AddUser()
+    {
+        var result = await service.TryAddEmailToBank(EmailToAdd, BankId.Value);
+
+        if (result.Success)
+        {
+            Message = result.Message;
+            MessageClass = "alert-success";
+
+            Users.Add(result.Data);
+        }
+        else
+        {
+            Message = result.Message;
+            MessageClass = "alert-danger";
+        }
+    }
+
+    private async Task RemoveUser(MouseEventArgs e, string userId)
+    {
+        var result = await service.RemoveUserFromGroupBank(userId, BankId.Value);
+
+        if (result.Success)
+        {
+            Message = result.Message;
+            MessageClass = "alert-success";
+
+            Users.RemoveAll(u => u.Id == userId);
+        }
+        else
+        {
+            Message = result.Message;
+            MessageClass = "alert-danger";
+        }
+    }
+
+
+}

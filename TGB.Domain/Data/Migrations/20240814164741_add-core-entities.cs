@@ -17,11 +17,11 @@ namespace TGB.Domain.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TypeName = table.Column<string>(type: "text", nullable: false),
                     TypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    User = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    User = table.Column<string>(type: "text", nullable: false),
                     Time = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    Action = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Action = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,7 +33,7 @@ namespace TGB.Domain.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,10 +45,10 @@ namespace TGB.Domain.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     Amount = table.Column<float>(type: "real", nullable: false),
-                    Tags = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Tags = table.Column<string>(type: "text", nullable: false),
                     GroupBankId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>

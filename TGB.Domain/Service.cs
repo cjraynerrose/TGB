@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Security.Claims;
@@ -54,7 +55,7 @@ namespace TGB.Domain
             await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveUserFromGroupBank(string userId, Guid groupBankId)
+        public async Task<Result> RemoveUserFromGroupBank(string userId, Guid groupBankId)
         {
             IdentityUserClaim<string> claim = await _context.UserClaims
                 .Where(uc => uc.UserId == userId && uc.ClaimType == TgbClaimTypes.GroupBankUserClaim && uc.ClaimValue == groupBankId.ToString())
@@ -65,6 +66,12 @@ namespace TGB.Domain
                 _context.UserClaims.Remove(claim);
                 await _context.SaveChangesAsync();
             }
+
+            return new Result
+            {
+                Success = claim != null,
+                Message = claim != null ? "User removed successfully" : "User not found"
+            };
         }
 
         public async Task<List<GroupBank>> GetGroupBanksForUser(string userId)
@@ -92,15 +99,14 @@ namespace TGB.Domain
 
         public async Task<List<GroupBank>> GetGroupBanksForUser(ClaimsPrincipal principal)
         {
-            var groupBankIds = principal.FindAll(TgbClaimTypes.GroupBankUserClaim).Select(c => Guid.Parse(c.Value)).ToList();
-            return await _context.GroupBanks
-                .Where(gb => groupBankIds.Contains(gb.Id))
-                .Select(gb => new GroupBank
-                {
-                    Id = gb.Id,
-                    Name = gb.Name
-                })
-                .ToListAsync();
+            var userId = principal.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+            if(userId == null)
+            {
+                return [];
+            }
+
+            return await GetGroupBanksForUser(userId);
         }
 
         public async Task<GroupBank> GetGroupBank(Guid groupBankId)
@@ -108,6 +114,14 @@ namespace TGB.Domain
             return await _context.GroupBanks
                 .Include(gb => gb.Records)
                 .Where(gb => gb.Id == groupBankId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Guid> GetGroupBankIdFromName(string name)
+        {
+            return await _context.GroupBanks
+                .Where(gb => gb.Name == name)
+                .Select(gb => gb.Id)
                 .FirstOrDefaultAsync();
         }
 
@@ -217,7 +231,7 @@ namespace TGB.Domain
             return note;
         }
 
-        public async Task<Note> UpdateNote(Note note)
+        public async Task<Note> UpdateNote(Note note, Guid groupBankId)
         {
             var local = _context.Set<Note>()
                 .Local
@@ -251,6 +265,57 @@ namespace TGB.Domain
             return await _context.Notes
                 .Where(n => n.Id == noteId)
                 .FirstOrDefaultAsync();
+        }
+
+        // IDENTITY
+
+        public async Task<List<IdentityUser>> GetUsersForBank(Guid bankId)
+        {
+
+           var userIds = await _context.UserClaims
+                .Where(uc => uc.ClaimType == TgbClaimTypes.GroupBankUserClaim && uc.ClaimValue == bankId.ToString())
+                .Select(uc => uc.UserId)
+                .ToListAsync();
+
+            var users = await _context.Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new IdentityUser
+                {
+                    UserName = u.UserName,
+                    Id = u.Id
+                })
+                .ToListAsync();
+
+            return users;
+        }
+
+        public async Task<Result<IdentityUser>> TryAddEmailToBank(string email, Guid BankId)
+        {
+            var user = await _context.Users
+                .Where(u => u.Email == email)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return new Result<IdentityUser>
+                {
+                    Success = false,
+                    Message = "User not found"
+                };
+            }
+
+            await AddUserToGroupBank(user.Id, BankId);
+
+            return new Result<IdentityUser>
+            {
+                Success = true,
+                Message = "User added successfully",
+                Data = new IdentityUser
+                {
+                    UserName = user.UserName,
+                    Id = user.Id
+                }
+            };
         }
     }
 }

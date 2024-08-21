@@ -26,12 +26,12 @@ namespace TGB.Domain.Migrations
                 type: "int",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "text");
 
             migrationBuilder.AddColumn<string>(
                 name: "NewValues",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: false,
                 defaultValue: "");
         }
@@ -51,7 +51,7 @@ namespace TGB.Domain.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Action",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldType: "int");

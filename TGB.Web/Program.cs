@@ -6,6 +6,7 @@ using TGB.Domain;
 using TGB.Domain.Data;
 using TGB.Web.Components;
 using TGB.Web.Components.Account;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace TGB.Web
 {
@@ -13,24 +14,37 @@ namespace TGB.Web
     {
         public static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();
-
             var builder = WebApplication.CreateBuilder(args);
 
+            if (builder.Environment.IsProduction())
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                    .CreateLogger();
+            }
+            else
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.Console()
+                    .CreateLogger();
+            }
+
             builder.Services.AddSerilog(Log.Logger);
-            
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+
+            var sqlitePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TheGroupBank/Data/TGB.db");
+            var connString = "DataSource=" + sqlitePath;
 
             // https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#using-a-dbcontext-factory-eg-for-blazor
             // Use a factory to handle multiple components calling the context at the same time
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseSqlite(connString));
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Add services to the container.
-            builder.Services.AddRazorComponents()
+            builder.Services.AddRazorComponents(options =>
+                options.DetailedErrors = builder.Environment.IsDevelopment())
                 .AddInteractiveServerComponents();
 
             builder.Services.AddCascadingAuthenticationState();

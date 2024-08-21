@@ -4,10 +4,14 @@
 @inject AuthenticationStateProvider asProvider
 @inject NavigationManager navManager
 
-<h3>createGroupBank</h3>
+<AuthorizeView>
+    <Authorized>
+        <h3>createGroupBank</h3>
 
-<InputText @bind-Value="Name" placeholder="Name" />
-<Button @onclick="CreateNewGroupBank">Create</Button>
+        <InputText @bind-Value="Name" placeholder="Name" />
+        <Button @onclick="CreateNewGroupBank">Create</Button>
+    </Authorized>
+</AuthorizeView>
 
 @code {
     private string UserId { get; set; }

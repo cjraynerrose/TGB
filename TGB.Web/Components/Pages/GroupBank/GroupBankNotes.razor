@@ -1,0 +1,148 @@
+﻿@page "/Bank/{RouteBankName}/Notes/"
+@using TGB.Domain.Entities
+@using TGB.Web.Models
+@rendermode InteractiveServer
+@inject Service service
+@inject AuthenticationStateProvider asProvider
+@inject IJSRuntime JS
+
+<AuthorizeView>
+    <Authorized>
+        <p class="alert alert-warning">
+            BUG: If you open this page, go to another, and come back the note will not load the content, only the title.
+            <br />
+            WORKAROUND: F5.
+        </p>
+        <div class="d-flex">
+            <div class="px-3">
+                <h1>@RouteBankName</h1>
+                <br />
+                @if(NoteVMs == null)
+                {
+                    <p><em>Nothing to show...</em></p>
+                }
+                else
+                {
+                    <div class="flex-column">
+                        @foreach (var note in GetNotes())
+                        {
+                            <div>
+                                <button class="btn btn-link" @onclick="@(e => MenuClick_LoadNote(e, note.Id))">
+                                    @note.Title
+                                    </button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="vr"></div>
+
+            <div class="px-3 flex-fill">
+                <div class="d-flex">
+                    <input @bind="CurrentNote.Title" />
+                    <div class="vr"></div>
+                    <button @onclick="SaveNote">Save</button>
+                    <button @onclick="NewNote">New</button>
+                    <button @onclick="ClearNote">Clear</button>
+                </div>
+
+                <hr />
+
+                <textarea id="textarea" @bind="CurrentNote.Content"></textarea>
+            </div>
+        </div>
+
+        <script>
+            var easyMDE;
+            $(document).ready(function () {
+                easyMDE = new EasyMDE({
+                    element: document.querySelector('#textarea'),
+                    forceSync: true
+                });
+            });
+        </script>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    [Parameter]
+    public string RouteBankName { get; set; }
+
+    public Guid GroupBankId { get; set; }
+
+    public List<NoteVM> NoteVMs { get; set; }
+
+    public NoteVM CurrentNote { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        CurrentNote = new();
+        GroupBankId = await service.GetGroupBankIdFromName(RouteBankName);
+        var notes = await service.GetNotesForMenu(RouteBankName);
+        NoteVMs = notes.Select(n => new NoteVM(n)).ToList();
+    }
+
+    private async Task SaveNote()
+    {
+        var content = await JS.InvokeAsync<string>("easyMDE.value");
+        CurrentNote.Content = content;
+
+        Note result;
+        bool newNote = false;
+        if(CurrentNote.Id == Guid.Empty)
+        {
+            result = await service.CreateNote(CurrentNote.ToNote(), GroupBankId);
+            newNote = true;
+        }
+        else
+        {
+            result = await service.UpdateNote(CurrentNote.ToNote(), GroupBankId);
+        }
+
+        if(result != null)
+        {
+            CurrentNote = new NoteVM(result);
+        }
+
+        if(newNote)
+        {
+            NoteVMs.Add(CurrentNote);
+        }
+        else
+        {
+            var idx = NoteVMs.FindIndex(x => x.Id == CurrentNote.Id);
+            NoteVMs[idx].Title = CurrentNote.Title;
+            NoteVMs[idx].Content = CurrentNote.Content;
+        }
+    }
+
+    public void NewNote()
+    {
+        CurrentNote = new NoteVM();
+        JS.InvokeVoidAsync($"easyMDE.value", string.Empty);
+    }
+
+    public void ClearNote()
+    {
+        CurrentNote.Title = string.Empty;
+        CurrentNote.Content = string.Empty;
+        JS.InvokeVoidAsync($"easyMDE.value", string.Empty);
+    }
+
+    private async Task MenuClick_LoadNote(MouseEventArgs e, Guid noteId)
+    {
+        var note = await service.GetNote(noteId);
+
+        CurrentNote = new NoteVM(note);
+        
+        await JS.InvokeVoidAsync($"easyMDE.value", CurrentNote.Content);
+    }
+
+    private List<NoteVM> GetNotes()
+    {
+        return NoteVMs.OrderBy(x => x.Title).ToList();
+    }
+}

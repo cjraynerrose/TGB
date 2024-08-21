@@ -23,7 +23,7 @@ namespace TGB.Domain.Migrations
                 type: "nvarchar(200)",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
+                oldType: "text",
                 oldNullable: true);
 
             migrationBuilder.CreateIndex(

@@ -13,26 +13,26 @@ namespace TGB.Domain.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "TypeName",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "text");
 
             migrationBuilder.AlterColumn<string>(
                 name: "OldValues",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "text");
 
             migrationBuilder.AlterColumn<string>(
                 name: "NewValues",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: "text");
         }
 
         /// <inheritdoc />
@@ -41,31 +41,31 @@ namespace TGB.Domain.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "TypeName",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
+                oldType: "text",
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "OldValues",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
+                oldType: "text",
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "NewValues",
                 table: "Audits",
-                type: "nvarchar(max)",
+                type: "text",
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
+                oldType: "text",
                 oldNullable: true);
         }
     }

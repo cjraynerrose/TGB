@@ -27,13 +27,13 @@ namespace TGB.Web.Models
 
         public bool UnsavedChanges = false;
 
-        public Record ToRecord()
+        public Note ToNote()
         {
-            return new Record
+            return new Note
             {
                 Id = Id,
-                Name = Title,
-                Description = Content,
+                Title = Title,
+                Content = Content,
                 Tags = TagHelpers.UnflattenTags(Tags)
             };
         }

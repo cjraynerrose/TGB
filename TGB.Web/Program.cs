@@ -31,8 +31,13 @@ namespace TGB.Web
 
             builder.Services.AddSerilog(Log.Logger);
 
+            var dbFolder = builder.Configuration.GetValue<string>("Sqlite:Path");
+            if (string.IsNullOrEmpty(dbFolder))
+            {
+                dbFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            }
 
-            var sqlitePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TheGroupBank/Data/TGB.db");
+            var sqlitePath = Path.Combine(dbFolder, "TheGroupBank/Data/TGB.db");
             var connString = "DataSource=" + sqlitePath;
 
             // https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#using-a-dbcontext-factory-eg-for-blazor

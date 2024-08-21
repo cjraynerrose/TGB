@@ -24,7 +24,16 @@ namespace TGB.Domain.Data
 		public DbSet<Record> Records { get; set; }
 		public DbSet<Audit> Audits { get; set; }
 
-		public DbSet<Note> Notes { get; set; }
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+
+            configurationBuilder
+                .Properties<Guid>()
+                .HaveConversion<GuidToTextConverter>();
+        }
+
+        public DbSet<Note> Notes { get; set; }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {

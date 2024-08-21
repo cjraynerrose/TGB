@@ -36,6 +36,7 @@
                 </div>
 
                 <div class="nav-item px-3">
+                    <button class="" @onclick="ReloadUserBanks">Reload</button>
                     <em>Here are your banks:</em>
                 </div>
 
@@ -119,6 +120,10 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
+    private async Task ReloadUserBanks()
+    {
+        banks = await GetUserBanks();
+    }
 
     private async Task<List<GroupBankVM>> GetUserBanks()
     {

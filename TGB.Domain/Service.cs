@@ -76,6 +76,18 @@ namespace TGB.Domain
 
         public async Task<List<GroupBank>> GetGroupBanksForUser(string userId)
         {
+            //var bankIds = await _context.UserClaims.Where(c => c.UserId == userId && c.ClaimType == TgbClaimTypes.GroupBankUserClaim).Select(c => c.ClaimValue).ToListAsync();
+            //var banks = await _context.Database.SqlQueryRaw<GroupBank>(
+            //    $"""
+            //    SELECT Id, Name
+            //    FROM 'GroupBanks'
+            //    WHERE Id IN ('{string.Join("','", bankIds)}')
+            //    """
+            //    )
+            //    .ToListAsync();
+
+            //return banks;
+
             return await _context.UserClaims
                 .Join(
                     _context.GroupBanks,

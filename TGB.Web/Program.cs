@@ -34,10 +34,10 @@ namespace TGB.Web
             var dbFolder = builder.Configuration.GetValue<string>("Sqlite:Path");
             if (string.IsNullOrEmpty(dbFolder))
             {
-                dbFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                dbFolder = Directory.GetCurrentDirectory();
             }
 
-            var sqlitePath = Path.Combine(dbFolder, "TheGroupBank/Data/TGB.db");
+            var sqlitePath = Path.Combine(dbFolder, "TGB.db");
             var connString = "DataSource=" + sqlitePath;
 
             // https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#using-a-dbcontext-factory-eg-for-blazor

@@ -1,9 +1,10 @@
-﻿::deep input {
+﻿::deep .table input {
     border: none;
     background: none;
+    width: 100%;
 }
 
-    ::deep input:focus-visible {
+    ::deep .table input:focus-visible {
         outline: none;
         border-bottom: .1rem solid var(--bs-secondary-color);
     }
@@ -15,3 +16,23 @@
     ::deep .table-warning input:focus-visible {
         border-bottom: .1rem solid var(--bs-table-color);
     }
+
+.name-col {
+    width: 15%;
+}
+
+.num-col {
+    width: 5%;
+}
+
+.desc-col {
+    width: 30%;
+}
+
+.tags-col {
+    width: 30%;
+}
+
+.acts-col {
+    width: 5%;
+}

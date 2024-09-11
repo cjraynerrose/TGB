@@ -6,10 +6,12 @@
 
 <AuthorizeView>
     <Authorized>
-        <h3>createGroupBank</h3>
+        <h3>Create a new group bank</h3>
 
-        <InputText @bind-Value="Name" placeholder="Name" />
-        <Button @onclick="CreateNewGroupBank">Create</Button>
+        <div class="my-3">
+            <InputText @bind-Value="Name" placeholder="Name" />
+            <Button @onclick="CreateNewGroupBank">Create</Button>
+        </div>
     </Authorized>
 </AuthorizeView>
 

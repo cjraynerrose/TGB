@@ -1,0 +1,17 @@
+﻿::deep input {
+    border: none;
+    background: none;
+}
+
+    ::deep input:focus-visible {
+        outline: none;
+        border-bottom: .1rem solid var(--bs-secondary-color);
+    }
+
+::deep .table-warning input {
+    color: var(--bs-table-color);
+}
+
+    ::deep .table-warning input:focus-visible {
+        border-bottom: .1rem solid var(--bs-table-color);
+    }

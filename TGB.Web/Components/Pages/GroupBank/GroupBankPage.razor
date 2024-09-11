@@ -14,6 +14,9 @@
         <div class="flex-column">
             <div class="d-flex">
                 <h1>@RouteBankName</h1>
+                <div class="my-auto ms-5">
+                <a href="Bank/@RouteBankName/Users">Users</a>
+            </div>
                 <div class="mx-auto">
                     <InputText @bind-Value="SearchQuery" placeholder="Search name and desc" />
                     <button>Search</button>
@@ -27,11 +30,11 @@
             </div>
 
             <div class="d-flex">
-                <table class="table">
-                    <thead>
+                <table class="table table-striped table-hover">
+                    <thead class="table-primary">
                         <tr>
                             <td scope="col">Name</td>
-                            <td scope="col">Amount</td>
+                            <td scope="col-1">#</td>
                             <td scope="col">Description</td>
                             <td scope="col">Tags</td>
                             <td scope="col">Actions</td>
@@ -94,9 +97,7 @@
 
             </div>
 
-            <div class="mt-auto">
-                <a href="Bank/@RouteBankName/Users">Users</a>
-            </div>
+            
         </div>
     </Authorized>
 </AuthorizeView>

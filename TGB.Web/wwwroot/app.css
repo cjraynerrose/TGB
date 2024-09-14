@@ -50,6 +50,12 @@ h1:focus {
     border-color: #929292;
 }
 
+.dropdown-item.danger {
+    background-color: var(--bs-danger);
+}
+.dropdown-item.danger:hover {
+    outline: 1px solid var(--bs-warning);
+}
 
 
 /* Custom CSS to make EasyMDE play nice with Bootstrap colors */

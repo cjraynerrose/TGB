@@ -106,7 +106,7 @@
 
             </div>
 
-            
+
         </div>
     </Authorized>
 </AuthorizeView>
@@ -149,9 +149,9 @@
             return;
         }
 
-        var bank = await service.GetGroupBank(id.Value);
-        BankVM = new GroupBankVM(bank);
-    }
+            var bank = await service.GetGroupBank(id.Value);
+            BankVM = new GroupBankVM(bank);
+        }
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -224,6 +224,11 @@
         var record = await service.CreateRecord(NewRecordVM.ToRecord(), BankVM.Id);
         BankVM.Records.Add(new RecordVM(record));
 
+        NewRecordVM = new();
+    }
+
+    private void ClearNewRecord()
+    {
         NewRecordVM = new();
     }
 

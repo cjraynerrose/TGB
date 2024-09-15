@@ -30,16 +30,20 @@
                     </NavLink>
                 </div>
 
-                <hr />
+                <hr/>
+                <div class="d-flex">
+                    <div class="nav-item px-3 py-1">
+                        <h4 class="text-decoration-underline">Your Banks</h4>
+                    </div>
 
-                <div class="nav-item px-3">
-                    <h4 class="text-decoration-underline">Your banks</h4>
+                    <div class="nav-item ms-auto me-3">
+                        <NavLink class="btn btn-success btn-sm" href="CreateGroupBank">
+                            +
+                        </NavLink>
+                    </div>
                 </div>
 
-                <div class="nav-item px-3">
-                    <NavLink class="btn btn-link" href="CreateGroupBank">Create New Group Bank</NavLink>
-                </div>
-
+                <hr class="mx-3" />
 
                 @if (banks == null)
                 {
@@ -47,26 +51,28 @@
                 }
                 else
                 {
+                    <div class="container text-center">
                     @foreach (var bank in banks)
                     {
                         var url = $"Bank/{bank.Name}";
                         var urlNotes = $"Bank/{bank.Name}/Notes";
 
-                        <div class="container">
                             <div class="">
-                                <div class="col align-items-start nav-item py-0">
-                                    <NavLink class="btn btn-link py-0" href="@url">@bank.Name</NavLink>
+                                <div class="col align-self-center nav-item py-0">
+                                    <NavLink class="btn btn-link py-0" href="@url">
+                                        <strong class="lead">@bank.Name</strong>
+                                    </NavLink>
                                 </div>
                             </div>
                             <div class="">
-                                <div class="col-auto ms-5 nav-item py-1">
+                                <div class="col nav-item py-1">
                                     <NavLink class="btn btn-link py-0" href="@urlNotes">Notes</NavLink>
                                 </div>
                             </div>
-                        </div>
 
-                        <hr />
+                        <hr class="mx-5" />
                     }
+                    </div>
                 }
 
 

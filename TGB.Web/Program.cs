@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using TGB.Domain;
 using TGB.Domain.Data;
 using TGB.Web.Components;
 using TGB.Web.Components.Account;
 using Microsoft.AspNetCore.Components.Forms;
+using TGB.Domain.Services;
 
 namespace TGB.Web
 {
@@ -73,6 +73,7 @@ namespace TGB.Web
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
             
             builder.Services.AddTransient<Service>();
+            builder.Services.AddTransient<GroupBankService>();
 
             var app = builder.Build();
 

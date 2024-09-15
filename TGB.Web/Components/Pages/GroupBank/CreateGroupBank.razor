@@ -1,6 +1,6 @@
 ﻿@page "/CreateGroupBank"
 @rendermode InteractiveServer
-@inject Service service
+@inject GroupBankService gbService
 @inject AuthenticationStateProvider asProvider
 @inject NavigationManager navManager
 
@@ -23,7 +23,7 @@
     {
         Console.WriteLine("Creating new group bank");
 
-        var gb = await service.CreateGroupBank(Name, [UserId]);
+        var gb = await gbService.CreateGroupBank(Name, [UserId]);
 
         navManager.NavigateTo("/");
     }

@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @rendermode InteractiveServer
 @inject Service service
+@inject GroupBankService gbService
 @inject AuthenticationStateProvider asProvider
 
 <AuthorizeView>
@@ -70,7 +71,7 @@
             return;
         }
 
-        var banks = await service.GetGroupBanksForUser(User);
+        var banks = await gbService.GetGroupBanksForUser(User);
         BankId = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
 
         if (BankId is null)
@@ -83,7 +84,7 @@
 
     private async Task AddUser()
     {
-        var result = await service.TryAddEmailToBank(EmailToAdd, BankId.Value);
+        var result = await gbService.TryAddEmailToBank(EmailToAdd, BankId.Value);
 
         if (result.Success)
         {
@@ -101,7 +102,7 @@
 
     private async Task RemoveUser(MouseEventArgs e, string userId)
     {
-        var result = await service.RemoveUserFromGroupBank(userId, BankId.Value);
+        var result = await gbService.RemoveUserFromGroupBank(userId, BankId.Value);
 
         if (result.Success)
         {

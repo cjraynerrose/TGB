@@ -3,7 +3,8 @@
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider asProvider
-@inject Service service
+@inject IHttpContextAccessor httpContextAccessor
+@inject GroupBankService gbService
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -32,13 +33,13 @@
                 <hr />
 
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="CreateGroupBank">Create New Group Bank</NavLink>
+                    <h4 class="text-decoration-underline">Your banks</h4>
                 </div>
 
                 <div class="nav-item px-3">
-                    <button class="" @onclick="ReloadUserBanks">Reload</button>
-                    <em>Here are your banks:</em>
+                    <NavLink class="btn btn-link" href="CreateGroupBank">Create New Group Bank</NavLink>
                 </div>
+
 
                 @if (banks == null)
                 {
@@ -51,23 +52,20 @@
                         var url = $"Bank/{bank.Name}";
                         var urlNotes = $"Bank/{bank.Name}/Notes";
 
-
-                        <div class="d-flex nav-item ps-2">
-
+                        <div class="container">
                             <div class="">
-                                <a class="nav-link px-3" href="@url">
-                                    @bank.Name
-                                </a>
+                                <div class="col align-items-start nav-item py-0">
+                                    <NavLink class="btn btn-link py-0" href="@url">@bank.Name</NavLink>
+                                </div>
                             </div>
-
-                            <div class="vr"></div>
-
                             <div class="">
-                                <a class="nav-link px-3" href="@urlNotes">
-                                    Notes
-                                </a>
+                                <div class="col-auto ms-5 nav-item py-1">
+                                    <NavLink class="btn btn-link py-0" href="@urlNotes">Notes</NavLink>
+                                </div>
                             </div>
                         </div>
+
+                        <hr />
                     }
                 }
 
@@ -120,21 +118,20 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    private async Task ReloadUserBanks()
-    {
-        banks = await GetUserBanks();
-    }
-
     private async Task<List<GroupBankVM>> GetUserBanks()
     {
+        List<GroupBankVM> banks = [];
+
         var user = (await asProvider.GetAuthenticationStateAsync())?.User;
-        if (user == null || !user.HasClaim(c => c.Type == TgbClaimTypes.GroupBankUserClaim))
+        if (user == null)
         {
-            return null;
+            return banks;
         }
 
-        var gbs = await service.GetGroupBanksForUser(user);
-        return gbs.Select(gb => new GroupBankVM(gb)).ToList();
+        var gbs = await gbService.GetGroupBanksForUser(user);
+        banks.AddRange(gbs.Select(gb => new GroupBankVM(gb)));
+
+        return banks;
     }
 
     protected override async Task OnInitializedAsync()

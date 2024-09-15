@@ -1,6 +1,7 @@
 ﻿@page "/Bank/{RouteBankName}"
 @rendermode InteractiveServer
 @inject Service service
+@inject GroupBankService gbService
 @inject AuthenticationStateProvider asProvider
 @using System.Security.Claims
 @using TGB.Domain.Entities
@@ -141,7 +142,7 @@
             return;
         }
 
-        var banks = await service.GetGroupBanksForUser(User);
+        var banks = await gbService.GetGroupBanksForUser(User);
         var id = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
 
         if(id is null)
@@ -149,7 +150,7 @@
             return;
         }
 
-            var bank = await service.GetGroupBank(id.Value);
+        var bank = await gbService.GetGroupBank(id.Value);
             BankVM = new GroupBankVM(bank);
         }
 

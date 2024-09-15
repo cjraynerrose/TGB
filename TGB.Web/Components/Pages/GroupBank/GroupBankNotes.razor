@@ -3,6 +3,7 @@
 @using TGB.Web.Models
 @rendermode InteractiveServer
 @inject Service service
+@inject GroupBankService gbService
 @inject AuthenticationStateProvider asProvider
 @inject IJSRuntime JS
 
@@ -82,7 +83,7 @@
     protected override async Task OnInitializedAsync()
     {
         CurrentNote = new();
-        GroupBankId = await service.GetGroupBankIdFromName(RouteBankName);
+        GroupBankId = await gbService.GetGroupBankIdFromName(RouteBankName);
         var notes = await service.GetNotesForMenu(RouteBankName);
         NoteVMs = notes.Select(n => new NoteVM(n)).ToList();
     }

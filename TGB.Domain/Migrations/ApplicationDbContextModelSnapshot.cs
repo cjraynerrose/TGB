@@ -227,7 +227,7 @@ namespace TGB.Domain.Migrations
                     b.Property<DateTimeOffset>("Time")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("TypeId")
+                    b.Property<string>("TypeId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TypeName")
@@ -243,7 +243,7 @@ namespace TGB.Domain.Migrations
 
             modelBuilder.Entity("TGB.Domain.Entities.GroupBank", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -258,7 +258,7 @@ namespace TGB.Domain.Migrations
 
             modelBuilder.Entity("TGB.Domain.Entities.Note", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -266,7 +266,8 @@ namespace TGB.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("GroupBankId")
+                    b.Property<string>("GroupBankId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Tags")
@@ -286,7 +287,7 @@ namespace TGB.Domain.Migrations
 
             modelBuilder.Entity("TGB.Domain.Entities.Record", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -297,7 +298,7 @@ namespace TGB.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("GroupBankId")
+                    b.Property<string>("GroupBankId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")

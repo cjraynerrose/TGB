@@ -1,4 +1,4 @@
-﻿@page "/Bank/{RouteBankName}/Users"
+﻿@page "/Bank/{RouteCampaignName}/Users"
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @rendermode InteractiveServer
@@ -51,7 +51,7 @@
 
 @code {
     [Parameter]
-    public string RouteBankName { get; set; }
+    public string RouteCampaignName { get; set; }
 
     private Guid? BankId { get; set; }
 
@@ -71,20 +71,20 @@
             return;
         }
 
-        var banks = await gbService.GetGroupBanksForUser(User);
-        BankId = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
+        var banks = await gbService.GetCampaignsForUser(User);
+        BankId = banks.FirstOrDefault(b => b.Name == RouteCampaignName)?.Id;
 
         if (BankId is null)
         {
             return;
         }
 
-        Users = await service.GetUsersForBank(BankId.Value);
+        Users = await service.GetUsersForCampaign(BankId.Value);
     }
 
     private async Task AddUser()
     {
-        var result = await gbService.TryAddEmailToBank(EmailToAdd, BankId.Value);
+        var result = await gbService.TryAddEmailToCampaign(EmailToAdd, BankId.Value);
 
         if (result.Success)
         {
@@ -102,7 +102,7 @@
 
     private async Task RemoveUser(MouseEventArgs e, string userId)
     {
-        var result = await gbService.RemoveUserFromGroupBank(userId, BankId.Value);
+        var result = await gbService.RemoveUserFromCampaign(userId, BankId.Value);
 
         if (result.Success)
         {

@@ -8,12 +8,10 @@ namespace TGB.Web.Models
         public GroupBankVM(GroupBank groupBank)
         {
             Id = groupBank.Id;
-            Name = groupBank.Name;
             Records = groupBank.Records.Select(r => new RecordVM(r)).ToList();
         }
 
         public Guid Id { get; set; }
-        public string Name { get; set; }
         public List<RecordVM> Records { get; set; } = [];
 
         public GroupBank ToGroupBank()
@@ -21,7 +19,6 @@ namespace TGB.Web.Models
             return new GroupBank
             {
                 Id = Id,
-                Name = Name,
                 Records = Records.Select(r => r.ToRecord()).ToList()
             };
         }

@@ -1,4 +1,4 @@
-﻿@page "/Bank/{RouteBankName}/Notes/"
+﻿@page "/Bank/{RouteCampaignName}/Notes/"
 @using TGB.Domain.Entities
 @using TGB.Web.Models
 @rendermode InteractiveServer
@@ -16,7 +16,7 @@
         </p>
         <div class="d-flex">
             <div class="px-3">
-                <h1>@RouteBankName</h1>
+                <h1>@RouteCampaignName</h1>
                 <br />
                 @if(NoteVMs == null)
                 {
@@ -71,7 +71,7 @@
 @code {
 
     [Parameter]
-    public string RouteBankName { get; set; }
+    public string RouteCampaignName { get; set; }
 
     public Guid GroupBankId { get; set; }
 
@@ -83,8 +83,8 @@
     protected override async Task OnInitializedAsync()
     {
         CurrentNote = new();
-        GroupBankId = await gbService.GetGroupBankIdFromName(RouteBankName);
-        var notes = await service.GetNotesForMenu(RouteBankName);
+        GroupBankId = await gbService.GetCampaignIdFromName(RouteCampaignName);
+        var notes = await service.GetNotesForMenu(RouteCampaignName);
         NoteVMs = notes.Select(n => new NoteVM(n)).ToList();
     }
 
@@ -102,7 +102,7 @@
         }
         else
         {
-            result = await service.UpdateNote(CurrentNote.ToNote(), GroupBankId);
+            result = await service.UpdateNote(CurrentNote.ToNote());
         }
 
         if(result != null)

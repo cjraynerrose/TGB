@@ -8,6 +8,6 @@ namespace TGB.Domain
 {
 	public static class TgbClaimTypes
 	{
-		public const string GroupBankUserClaim = "TGB.GroupBankUserClaim";
+		public const string CampaignUserClaim = "TGB.CampaignUserClaim";
 	}
 }

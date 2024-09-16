@@ -23,7 +23,7 @@
     {
         Console.WriteLine("Creating new group bank");
 
-        var gb = await gbService.CreateGroupBank(Name, [UserId]);
+        var gb = await gbService.CreateCampaign(Name, [UserId]);
 
         navManager.NavigateTo("/");
     }

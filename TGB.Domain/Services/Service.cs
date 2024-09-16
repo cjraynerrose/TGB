@@ -80,10 +80,11 @@ namespace TGB.Domain.Services
 
         // NOTES
 
-        public async Task<List<Note>> GetNotesForMenu(string groupBankName)
+        public async Task<List<Note>> GetNotesForMenu(string campaignName)
         {
-            return await _context.Notes
-                .Where(n => n.GroupBank.Name == groupBankName)
+            return await _context.Campaigns
+                .Where(c => c.Name == campaignName)
+                .SelectMany(c => c.Notes)
                 .Select(n => new Note
                 {
                     Id = n.Id,
@@ -93,25 +94,24 @@ namespace TGB.Domain.Services
                 .ToListAsync();
         }
 
-        public async Task<Note> CreateNote(Note note, Guid groupBankId)
+        public async Task<Note> CreateNote(Note note, Guid campaignId)
         {
-            var bank = await _context.GroupBanks
-                .Where(gb => gb.Id == groupBankId)
+            var campaign = await _context.Campaigns
+                .Where(gb => gb.Id == campaignId)
                 .FirstOrDefaultAsync();
 
-            if (bank == null)
+            if (campaign == null)
             {
                 throw new Exception("Group bank not found");
             }
 
-            note.GroupBank = bank;
-            _context.Notes.Add(note);
+            campaign.Notes.Add(note);
 
             await _context.SaveChangesAsync();
             return note;
         }
 
-        public async Task<Note> UpdateNote(Note note, Guid groupBankId)
+        public async Task<Note> UpdateNote(Note note)
         {
             var local = _context.Set<Note>()
                 .Local
@@ -149,11 +149,11 @@ namespace TGB.Domain.Services
 
         // IDENTITY
 
-        public async Task<List<IdentityUser>> GetUsersForBank(Guid bankId)
+        public async Task<List<IdentityUser>> GetUsersForCampaign(Guid campaignId)
         {
 
             var userIds = await _context.UserClaims
-                 .Where(uc => uc.ClaimType == TgbClaimTypes.GroupBankUserClaim && uc.ClaimValue == bankId.ToString())
+                 .Where(uc => uc.ClaimType == TgbClaimTypes.CampaignUserClaim && uc.ClaimValue == campaignId.ToString())
                  .Select(uc => uc.UserId)
                  .ToListAsync();
 

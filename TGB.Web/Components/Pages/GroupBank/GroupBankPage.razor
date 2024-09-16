@@ -1,4 +1,4 @@
-﻿@page "/Bank/{RouteBankName}"
+﻿@page "/Bank/{RouteCampaignName}"
 @rendermode InteractiveServer
 @inject Service service
 @inject GroupBankService gbService
@@ -14,9 +14,9 @@
     <Authorized>
         <div class="flex-column">
             <div class="d-flex mb-3">
-                <h1>@RouteBankName</h1>
+                <h1>@RouteCampaignName</h1>
                 <div class="my-auto ms-5">
-                <a href="Bank/@RouteBankName/Users">Users</a>
+                <a href="Bank/@RouteCampaignName/Users">Users</a>
             </div>
                 <div class="mx-auto">
                     <InputText @bind-Value="SearchQuery" placeholder="Search name and desc" />
@@ -116,7 +116,7 @@
 
 @code {
     [Parameter]
-    public string? RouteBankName { get; set; }
+    public string? RouteCampaignName { get; set; }
 
     public GroupBankVM BankVM;
 
@@ -142,17 +142,18 @@
             return;
         }
 
-        var banks = await gbService.GetGroupBanksForUser(User);
-        var id = banks.FirstOrDefault(b => b.Name == RouteBankName)?.Id;
+        var campaigns = await gbService.GetCampaignsForUser(User);
+        var id = campaigns.FirstOrDefault(b => b.Name == RouteCampaignName)?.Id;
 
         if(id is null)
         {
             return;
         }
 
-        var bank = await gbService.GetGroupBank(id.Value);
-            BankVM = new GroupBankVM(bank);
-        }
+        var campaign = await gbService.GetCampaign(id.Value);
+
+        BankVM = new GroupBankVM(campaign.GroupBank);
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {

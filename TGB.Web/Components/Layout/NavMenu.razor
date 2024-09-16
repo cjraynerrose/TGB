@@ -46,14 +46,14 @@
 
                 <hr class="mx-3" />
 
-                @if (banks == null)
+                @if (Campaigns == null)
                 {
                     <p><em>Nothing to show...</em></p>
                 }
                 else
                 {
                     <div class="container text-center">
-                        @foreach (var bank in banks)
+                        @foreach (var bank in Campaigns)
                         {
                             var url = $"Bank/{bank.Name}";
                             var urlNotes = $"Bank/{bank.Name}/Notes";
@@ -106,7 +106,7 @@
 
 @code {
     private string? currentUrl;
-    private List<GroupBankVM> banks;
+    private List<CampaignVM> Campaigns;
 
     protected override void OnInitialized()
     {
@@ -125,25 +125,25 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    private async Task<List<GroupBankVM>> GetUserBanks()
+    private async Task<List<CampaignVM>> GetUserCampaigns()
     {
-        List<GroupBankVM> banks = [];
+        List<CampaignVM> camps = [];
 
         var user = (await asProvider.GetAuthenticationStateAsync())?.User;
         if (user == null)
         {
-            return banks;
+            return camps;
         }
 
-        var gbs = await gbService.GetGroupBanksForUser(user);
-        banks.AddRange(gbs.Select(gb => new GroupBankVM(gb)));
+        var gbs = await gbService.GetCampaignsForUser(user);
+        camps.AddRange(gbs.Select(gb => new CampaignVM(gb)));
 
-        return banks;
+        return camps;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        banks = await GetUserBanks();
+        Campaigns = await GetUserCampaigns();
     }
 }
 

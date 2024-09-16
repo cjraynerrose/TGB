@@ -21,44 +21,53 @@ namespace TGB.Domain.Services
             _context = dbFactory.CreateDbContext();
         }
 
-        public async Task<GroupBank> CreateGroupBank(string name, List<string> userIds)
+        public async Task<Campaign> CreateCampaign(string name, List<string> userIds)
         {
             GroupBank groupBank = new GroupBank
             {
-                Id = Guid.NewGuid(),
-                Name = name
+                Id = Guid.NewGuid()
             };
+            
+            Campaign campaign = new()
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                GroupBank = groupBank
+            };
+
+
+            _context.Campaigns.Add(campaign);
 
             _context.GroupBanks.Add(groupBank);
 
             _context.UserClaims.AddRange(userIds.Select(userId => new IdentityUserClaim<string>
             {
                 UserId = userId,
-                ClaimType = TgbClaimTypes.GroupBankUserClaim,
-                ClaimValue = groupBank.Id.ToString()
+                ClaimType = TgbClaimTypes.CampaignUserClaim,
+                ClaimValue = campaign.Id.ToString()
             }));
 
             await _context.SaveChangesAsync();
 
-            return groupBank;
+            return campaign;
         }
 
-        public async Task AddUserToGroupBank(string userId, Guid groupBankId)
+        public async Task AddUserToCampaign(string userId, Guid campaignId)
         {
             _context.UserClaims.Add(new IdentityUserClaim<string>
             {
                 UserId = userId,
-                ClaimType = TgbClaimTypes.GroupBankUserClaim,
-                ClaimValue = groupBankId.ToString()
+                ClaimType = TgbClaimTypes.CampaignUserClaim,
+                ClaimValue = campaignId.ToString()
             });
 
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Result> RemoveUserFromGroupBank(string userId, Guid groupBankId)
+        public async Task<Result> RemoveUserFromCampaign(string userId, Guid campaignId)
         {
             IdentityUserClaim<string> claim = await _context.UserClaims
-                .Where(uc => uc.UserId == userId && uc.ClaimType == TgbClaimTypes.GroupBankUserClaim && uc.ClaimValue == groupBankId.ToString())
+                .Where(uc => uc.UserId == userId && uc.ClaimType == TgbClaimTypes.CampaignUserClaim && uc.ClaimValue == campaignId.ToString())
                 .FirstOrDefaultAsync();
 
             if (claim != null)
@@ -74,42 +83,35 @@ namespace TGB.Domain.Services
             };
         }
 
-        public async Task<List<GroupBank>> GetGroupBanksForUser(string userId)
+        public async Task<List<Campaign>> GetCampaignsForUser(string userId)
         {
-            //var bankIds = await _context.UserClaims.Where(c => c.UserId == userId && c.ClaimType == TgbClaimTypes.GroupBankUserClaim).Select(c => c.ClaimValue).ToListAsync();
-            //var banks = await _context.Database.SqlQueryRaw<GroupBank>(
-            //    $"""
-            //    SELECT Id, Name
-            //    FROM 'GroupBanks'
-            //    WHERE Id IN ('{string.Join("','", bankIds)}')
-            //    """
-            //    )
-            //    .ToListAsync();
-
-            //return banks;
 
             return await _context.UserClaims
                 .Join(
-                    _context.GroupBanks,
+                    _context.Campaigns,
                     userClaims => userClaims.ClaimValue,
-                    groupBanks => groupBanks.Id.ToString(),
-                    (uc, gb) => new
+                    campaigns => campaigns.Id.ToString(),
+                    (uc, cp) => new
                     {
-                        gb.Id,
-                        gb.Name,
+                        cp.Id,
+                        cp.Name,
                         uc.UserId,
-                        uc.ClaimType
+                        uc.ClaimType,
+                        GroupBankId = cp.GroupBank.Id,
+                        NoteIds = cp.Notes.Select(n => n.Id)
                     })
-                .Where(uc => uc.UserId == userId && uc.ClaimType == TgbClaimTypes.GroupBankUserClaim)
-                .Select(uc => new GroupBank
+                .Where(uc => uc.UserId == userId && uc.ClaimType == TgbClaimTypes.CampaignUserClaim)
+                .Select(uc => new Campaign
                 {
                     Id = uc.Id,
-                    Name = uc.Name
+                    Name = uc.Name,
+                    GroupBank = new() { Id = uc.GroupBankId },
+                    Notes = uc.NoteIds.Select(nid => new Note() { Id = nid }).ToList()
                 })
                 .ToListAsync();
         }
 
-        public async Task<List<GroupBank>> GetGroupBanksForUser(ClaimsPrincipal principal)
+        public async Task<List<Campaign>> GetCampaignsForUser(ClaimsPrincipal principal)
         {
             var userId = principal.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
 
@@ -118,7 +120,7 @@ namespace TGB.Domain.Services
                 return [];
             }
 
-            return await GetGroupBanksForUser(userId);
+            return await GetCampaignsForUser(userId);
         }
 
         public async Task<GroupBank> GetGroupBank(Guid groupBankId)
@@ -129,35 +131,24 @@ namespace TGB.Domain.Services
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Guid> GetGroupBankIdFromName(string name)
+
+        public async Task<Campaign> GetCampaign(Guid campaignId)
         {
-            return await _context.GroupBanks
+            return await _context.Campaigns
+                .Include(c => c.GroupBank)
+                .Where(gb => gb.Id == campaignId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Guid> GetCampaignIdFromName(string name)
+        {
+            return await _context.Campaigns
                 .Where(gb => gb.Name == name)
                 .Select(gb => gb.Id)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<GroupBank> UpdateGroupBank(GroupBank groupBank)
-        {
-            var local = _context.Set<GroupBank>()
-                .Local
-                .FirstOrDefault(entry => entry.Id.Equals(groupBank.Id));
-
-            if (local != null)
-            {
-                _context.Entry(local).State = EntityState.Detached;
-                foreach (var record in local.Records)
-                {
-                    _context.Entry(record).State = EntityState.Detached;
-                }
-            }
-
-            _context.Entry(groupBank).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return groupBank;
-        }
-
-        public async Task<Result<IdentityUser>> TryAddEmailToBank(string email, Guid BankId)
+        public async Task<Result<IdentityUser>> TryAddEmailToCampaign(string email, Guid CampaignId)
         {
             var user = await _context.Users
                 .Where(u => u.Email == email)
@@ -172,7 +163,7 @@ namespace TGB.Domain.Services
                 };
             }
 
-            await AddUserToGroupBank(user.Id, BankId);
+            await AddUserToCampaign(user.Id, CampaignId);
 
             return new Result<IdentityUser>
             {

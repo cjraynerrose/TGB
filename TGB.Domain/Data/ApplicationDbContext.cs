@@ -20,9 +20,11 @@ namespace TGB.Domain.Data
 			_httpContextAccessor = httpContextAccessor;
         }
 
+        public DbSet<Campaign> Campaigns { get; set; }
 		public DbSet<GroupBank> GroupBanks { get; set; }
 		public DbSet<Record> Records { get; set; }
 		public DbSet<Audit> Audits { get; set; }
+        public DbSet<Note> Notes { get; set; }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
@@ -33,7 +35,10 @@ namespace TGB.Domain.Data
                 .HaveConversion<GuidToTextConverter>();
         }
 
-        public DbSet<Note> Notes { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {

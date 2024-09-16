@@ -1,9 +1,31 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Sections
+@inherits LayoutComponentBase
+
+<HeadContent>
+    <script src="/js/MainLayout.js"></script>
+</HeadContent>
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
+    <div id="sideMenu" class="collapse collapse-horizontal show">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
     </div>
+    <button class="btn btn-secondary btn-sm minimise"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#sideMenu"
+            aria-expanded="true"
+            aria-controls="sideMenu">
+        @*
+            Blazor dynamic page loads borks FA as the SVG wont render
+            if the parent is too small.
+            A fixed sized div fixes it for now.
+        *@
+        <div style="width:15px;height:20px;">
+            <i id="toggleExpand" class="fa-solid fa-minimize"></i>
+        </div>
+    </button>
 
     <main class="d-flex-column">
         <div class="flex-fill">

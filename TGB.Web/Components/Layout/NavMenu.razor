@@ -6,10 +6,10 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inject GroupBankService gbService
 
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="d-inline-flex">
         <a class="navbar-brand" href="">The Group Bank</a>
-        <input type="checkbox" class="toggle-side-menu" title="Collapse side menu" />
     </div>
 </div>
 
@@ -31,7 +31,7 @@
                     </NavLink>
                 </div>
 
-                <hr/>
+                <hr />
                 <div class="d-flex">
                     <div class="nav-item px-3 py-1">
                         <h4 class="text-decoration-underline">Your Banks</h4>
@@ -53,10 +53,10 @@
                 else
                 {
                     <div class="container text-center">
-                    @foreach (var bank in banks)
-                    {
-                        var url = $"Bank/{bank.Name}";
-                        var urlNotes = $"Bank/{bank.Name}/Notes";
+                        @foreach (var bank in banks)
+                        {
+                            var url = $"Bank/{bank.Name}";
+                            var urlNotes = $"Bank/{bank.Name}/Notes";
 
                             <div class="">
                                 <div class="col align-self-center nav-item py-0">
@@ -71,8 +71,8 @@
                                 </div>
                             </div>
 
-                        <hr class="mx-5" />
-                    }
+                            <hr class="mx-5" />
+                        }
                     </div>
                 }
 

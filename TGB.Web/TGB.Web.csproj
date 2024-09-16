@@ -25,4 +25,8 @@
     <ProjectReference Include="..\TGB.Domain\TGB.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\js\MainLayout.js" />
+  </ItemGroup>
+
 </Project>

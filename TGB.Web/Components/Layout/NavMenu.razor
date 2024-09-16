@@ -34,11 +34,11 @@
                 <hr />
                 <div class="d-flex">
                     <div class="nav-item px-3 py-1">
-                        <h4 class="text-decoration-underline">Your Banks</h4>
+                        <h4 class="text-decoration-underline">Campaigns</h4>
                     </div>
 
                     <div class="nav-item ms-auto me-3">
-                        <NavLink class="btn btn-success btn-sm" href="CreateGroupBank">
+                        <NavLink class="btn btn-success btn-sm" href="CreateCampaign">
                             +
                         </NavLink>
                     </div>
@@ -53,15 +53,15 @@
                 else
                 {
                     <div class="container text-center">
-                        @foreach (var bank in Campaigns)
+                        @foreach (var campaign in Campaigns)
                         {
-                            var url = $"Bank/{bank.Name}";
-                            var urlNotes = $"Bank/{bank.Name}/Notes";
+                            var url = $"Campaign/{campaign.Name}";
+                            var urlNotes = $"Campaign/{campaign.Name}/Notes";
 
                             <div class="">
                                 <div class="col align-self-center nav-item py-0">
                                     <NavLink class="btn btn-link py-0" href="@url">
-                                        <strong class="lead">@bank.Name</strong>
+                                        <strong class="lead">@campaign.Name</strong>
                                     </NavLink>
                                 </div>
                             </div>

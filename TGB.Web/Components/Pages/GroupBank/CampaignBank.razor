@@ -1,4 +1,4 @@
-﻿@page "/Bank/{RouteCampaignName}"
+﻿@page "/Campaign/{RouteCampaignName}"
 @rendermode InteractiveServer
 @inject Service service
 @inject GroupBankService gbService
@@ -16,7 +16,7 @@
             <div class="d-flex mb-3">
                 <h1>@RouteCampaignName</h1>
                 <div class="my-auto ms-5">
-                <a href="Bank/@RouteCampaignName/Users">Users</a>
+                <a href="Campaign/@RouteCampaignName/Users">Users</a>
             </div>
                 <div class="mx-auto">
                     <InputText @bind-Value="SearchQuery" placeholder="Search name and desc" />

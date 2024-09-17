@@ -1,0 +1,42 @@
+﻿@page "/npc"
+
+<AuthorizeView>
+    <NotAuthorized>
+        <p>You are not authorized to view this page.</p>
+    </NotAuthorized>
+    <Authorized>
+        <h1>Npc's</h1>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Create New NPC
+        </button>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Create Npc</h1>
+                    </div>
+                    <form class="modal-body">
+                        <div class="input-group flex-nowrap">
+                            <span class="input-group-text" id="addon-wrapping">Name</span>
+                            <input type="text" class="form-control" placeholder="name" aria-label="name" aria-describedby="addon-wrapping">
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Discard NPC</button>
+                        <button type="button" class="btn btn-primary">Save NPC</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private async Task CreateNpc()
+    {
+
+    }
+}

@@ -362,7 +362,11 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /TGB.Web/TGB.db
+/TGB.Web/wwwroot/lib/bootstrap
+/TGB.Web/wwwroot/lib/bootstrap-icons
 /TGB.Web/wwwroot/lib/bootstrap-table
 /TGB.Web/wwwroot/lib/font-awesome
 /TGB.Web/TGB.db-shm
 /TGB.Web/TGB.db-wal
+
+

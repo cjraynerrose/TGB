@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TGB.Domain.Data;
 
@@ -10,9 +11,11 @@ using TGB.Domain.Data;
 namespace TGB.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240917182421_RemoveNotesFromBank")]
+    partial class RemoveNotesFromBank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -301,40 +304,6 @@ namespace TGB.Domain.Migrations
                     b.ToTable("Notes");
                 });
 
-            modelBuilder.Entity("TGB.Domain.Entities.Npc", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Npcs");
-                });
-
-            modelBuilder.Entity("TGB.Domain.Entities.NpcAttribites", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NpcId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Key");
-
-                    b.HasIndex("NpcId");
-
-                    b.ToTable("NpcAttribites");
-                });
-
             modelBuilder.Entity("TGB.Domain.Entities.Record", b =>
                 {
                     b.Property<string>("Id")
@@ -435,13 +404,6 @@ namespace TGB.Domain.Migrations
                         .HasForeignKey("CampaignId");
                 });
 
-            modelBuilder.Entity("TGB.Domain.Entities.NpcAttribites", b =>
-                {
-                    b.HasOne("TGB.Domain.Entities.Npc", null)
-                        .WithMany("Attributes")
-                        .HasForeignKey("NpcId");
-                });
-
             modelBuilder.Entity("TGB.Domain.Entities.Record", b =>
                 {
                     b.HasOne("TGB.Domain.Entities.GroupBank", null)
@@ -457,11 +419,6 @@ namespace TGB.Domain.Migrations
             modelBuilder.Entity("TGB.Domain.Entities.GroupBank", b =>
                 {
                     b.Navigation("Records");
-                });
-
-            modelBuilder.Entity("TGB.Domain.Entities.Npc", b =>
-                {
-                    b.Navigation("Attributes");
                 });
 #pragma warning restore 612, 618
         }

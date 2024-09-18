@@ -135,7 +135,7 @@ namespace TGB.Domain.Services
         public async Task<Campaign> GetCampaign(Guid campaignId)
         {
             return await _context.Campaigns
-                .Include(c => c.GroupBank)
+                .Include(c => c.GroupBank.Records)
                 .Where(gb => gb.Id == campaignId)
                 .FirstOrDefaultAsync();
         }

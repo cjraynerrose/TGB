@@ -1,4 +1,4 @@
-﻿@page "/Bank/{RouteCampaignName}"
+﻿@page "/Campaign/{RouteCampaignName}"
 @rendermode InteractiveServer
 @inject Service service
 @inject GroupBankService gbService
@@ -6,6 +6,10 @@
 @using System.Security.Claims
 @using TGB.Domain.Entities
 @using TGB.Web.Models
+
+<HeadContent>
+    <script src="/js/CampaignBank.js"></script>
+</HeadContent>
 
 <AuthorizeView>
     <NotAuthorized>
@@ -16,7 +20,7 @@
             <div class="d-flex mb-3">
                 <h1>@RouteCampaignName</h1>
                 <div class="my-auto ms-5">
-                <a href="Bank/@RouteCampaignName/Users">Users</a>
+                <a href="Campaign/@RouteCampaignName/Users">Users</a>
             </div>
                 <div class="mx-auto">
                     <InputText @bind-Value="SearchQuery" placeholder="Search name and desc" />
@@ -73,7 +77,7 @@
                             {
                                 var css = record.UnsavedChanges ? "table-warning" : "";
 
-                                <tr @key=record class="@css">
+                                <tr @key=record class="@css" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@@mdo">
                                     <td scope="row">
                                         <InputText @bind-Value="record.Name" />
                                     </td>
@@ -104,10 +108,36 @@
                         }
                     </tbody>
                 </table>
-
             </div>
+        </div>
 
-
+        @* Display Item Modal *@
+        @* https://getbootstrap.com/docs/5.3/components/modal/#varying-modal-content *@
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">New message</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                <input type="text" class="form-control" id="recipient-name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="message-text" class="col-form-label">Message:</label>
+                                <textarea class="form-control" id="message-text"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Send message</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </Authorized>
 </AuthorizeView>

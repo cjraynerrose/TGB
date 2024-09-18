@@ -1,20 +1,20 @@
-﻿$(document).ready(function () {
-    const exampleModal = document.getElementById('exampleModal')
-    if (exampleModal) {
-        exampleModal.addEventListener('show.bs.modal', event => {
-            // Button that triggered the modal
-            const button = event.relatedTarget
-            // Extract info from data-bs-* attributes
-            const recipient = button.getAttribute('data-bs-whatever')
-            // If necessary, you could initiate an Ajax request here
-            // and then do the updating in a callback.
+﻿export var easyMDE;
+export function createEasyMde() {
+    easyMDE = new EasyMDE({
+        element: document.querySelector('#focusRecordDesc'),
+        theme: null
+    });
+}
 
-            // Update the modal's content.
-            const modalTitle = exampleModal.querySelector('.modal-title')
-            const modalBodyInput = exampleModal.querySelector('.modal-body input')
-
-            modalTitle.textContent = `New message to ${recipient}`
-            modalBodyInput.value = recipient
-        })
+export function removeEasyMde() {
+    if (easyMDE !== null) {
+        easyMDE.toTextArea();
+        easyMDE = null;
     }
-});
+}
+
+export function easyMdeSetValue(value) {
+    removeEasyMde();
+    createEasyMde();
+    easyMDE.value = value;
+}

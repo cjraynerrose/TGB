@@ -1,15 +1,17 @@
-﻿::deep .table input {
+﻿::deep .table input,
+.sutble-input {
     border: none;
     background: none;
     width: 100%;
 }
 
-    ::deep .table input:focus-visible {
+    ::deep .table input:focus-visible,
+    .sutble-input:focus-visible {
         outline: none;
         border-bottom: .1rem solid var(--bs-secondary-color);
     }
 
-::deep .table-warning input {
+::deep .table-warning input{
     color: var(--bs-table-color);
 }
 

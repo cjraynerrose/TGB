@@ -7,13 +7,15 @@
 @inject AuthenticationStateProvider asProvider
 @inject IJSRuntime JS
 
+<HeadContent>
+    <script src="/lib/tiny-markdown-editor/dist/tiny-mde.min.js"></script>
+    <link rel="stylesheet"
+          type="text/css"
+          href="/lib/tiny-markdown-editor/dist/tiny-mde.min.css" />
+</HeadContent>
+
 <AuthorizeView>
     <Authorized>
-        <p class="alert alert-warning">
-            BUG: If you open this page, go to another, and come back the note will not load the content, only the title.
-            <br />
-            WORKAROUND: F5.
-        </p>
         <div class="d-flex">
             <div class="px-3">
                 <h1>@RouteCampaignName</h1>
@@ -50,20 +52,28 @@
 
                 <hr />
 
-                <textarea id="textarea" @bind="CurrentNote.Content"></textarea>
+                <div id="toolbar"></div>
+                <textarea id="editor"></textarea>
             </div>
         </div>
 
-        <script>
-            var easyMDE;
-            $(document).ready(function () {
-                easyMDE = new EasyMDE({
-                    element: document.querySelector('#textarea'),
-                    forceSync: true,
-                    autofocus: true,
-                    theme: null
-                });
-            });
+        <script type="text/javascript">
+            var tinyMDE;
+            var commandBar;
+
+            function openMdEditor(content) {
+                if (typeof tinyMDE === 'undefined'
+                    || document.querySelector("div.TinyMDE") === null ) {
+                    tinyMDE = new TinyMDE.Editor({ element: "editor", content: content });
+                    commandBar = new TinyMDE.CommandBar({
+                        element: "toolbar",
+                        editor: tinyMDE,
+                    });
+                }
+                else {
+                    tinyMDE.setContent(content);
+                }
+            }
         </script>
     </Authorized>
 </AuthorizeView>
@@ -88,9 +98,19 @@
         NoteVMs = notes.Select(n => new NoteVM(n)).ToList();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("openMdEditor", "");
+        }
+    }
+
     private async Task SaveNote()
     {
-        var content = await JS.InvokeAsync<string>("easyMDE.value");
+        var content = await JS.InvokeAsync<string>("tinyMDE.getContent");
         CurrentNote.Content = content;
 
         Note result;
@@ -122,17 +142,17 @@
         }
     }
 
-    public void NewNote()
+    public async void NewNote()
     {
         CurrentNote = new NoteVM();
-        JS.InvokeVoidAsync($"easyMDE.value", string.Empty);
+        await JS.InvokeVoidAsync($"openMdEditor", string.Empty);
     }
 
-    public void ClearNote()
+    public async void ClearNote()
     {
         CurrentNote.Title = string.Empty;
         CurrentNote.Content = string.Empty;
-        JS.InvokeVoidAsync($"easyMDE.value", string.Empty);
+        await JS.InvokeVoidAsync($"openMdEditor", string.Empty);
     }
 
     private async Task MenuClick_LoadNote(MouseEventArgs e, Guid noteId)
@@ -141,7 +161,7 @@
 
         CurrentNote = new NoteVM(note);
         
-        await JS.InvokeVoidAsync($"easyMDE.value", CurrentNote.Content);
+        await JS.InvokeVoidAsync($"openMdEditor", CurrentNote.Content);
     }
 
     private List<NoteVM> GetNotes()

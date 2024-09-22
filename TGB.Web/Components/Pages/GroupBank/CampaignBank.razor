@@ -3,12 +3,16 @@
 @inject Service service
 @inject GroupBankService gbService
 @inject AuthenticationStateProvider asProvider
+@inject IJSRuntime JS
 @using System.Security.Claims
 @using TGB.Domain.Entities
 @using TGB.Web.Models
 
 <HeadContent>
-    <script src="/js/CampaignBank.js"></script>
+    <script src="/lib/tiny-markdown-editor/dist/tiny-mde.min.js"></script>
+    <link rel="stylesheet"
+          type="text/css"
+          href="/lib/tiny-markdown-editor/dist/tiny-mde.min.css" />
 </HeadContent>
 
 <AuthorizeView>
@@ -40,7 +44,7 @@
                         <tr>
                             <td class="name-col" scope="col">Name</td>
                             <td class="num-col" scope="col">#</td>
-                            <td class="desc-col" scope="col">Description</td>
+                            <td class="desc-col" scope="col">Summary</td>
                             <td class="tags-col" scope="col">Tags</td>
                             <td class="acts-col" scope="col">Actions</td>
                         </tr>
@@ -62,7 +66,7 @@
                                     <InputNumber @bind-Value="NewRecordVM.Amount" placeholder="Amount" />
                                 </td>
                                 <td>
-                                    <InputText @bind-Value="NewRecordVM.Description" placeholder="Description" />
+                                    <InputText @bind-Value="NewRecordVM.ShortDescription" placeholder="Summary" />
                                 </td>
                                 <td>
                                     <InputText @bind-Value="NewRecordVM.Tags" placeholder="semi-colon;seperated;tags" />
@@ -77,7 +81,7 @@
                             {
                                 var css = record.UnsavedChanges ? "table-warning" : "";
 
-                                <tr @key=record class="@css" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@@mdo">
+                                <tr @key=record class="@css">
                                     <td scope="row">
                                         <InputText @bind-Value="record.Name" />
                                     </td>
@@ -85,7 +89,7 @@
                                         <InputNumber @bind-Value="record.Amount" />
                                     </td>
                                     <td>
-                                        <InputText @bind-Value="record.Description" />
+                                        <InputText @bind-Value="record.ShortDescription" />
                                     </td>
                                     <td>
                                         <InputText @bind-Value="record.Tags" />
@@ -99,6 +103,12 @@
                                             <ul class="dropdown-menu">
                                                 <li>
                                                     <button class="dropdown-item" @onclick="@(e => DeleteRecord(e, record))">Delete</button>
+                                                    <button class="dropdown-item"
+                                                            data-bs-toggle="modal" 
+                                                            data-bs-target="#recordModal"
+                                                            @onclick="@(e => SelectFocusRecord(e, record))">
+                                                        Embiggen
+                                                        </button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -113,32 +123,55 @@
 
         @* Display Item Modal *@
         @* https://getbootstrap.com/docs/5.3/components/modal/#varying-modal-content *@
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal modal-lg fade" id="recordModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">New message</h1>
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">
+                            <div class="d-inline-flex">
+                                <input class="sutble-input" @bind-value="FocusRecordVM.Name" />
+                                <input class="sutble-input" @bind-value="FocusRecordVM.Amount" />
+                            </div>
+                        </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form>
-                            <div class="mb-3">
-                                <label for="recipient-name" class="col-form-label">Recipient:</label>
-                                <input type="text" class="form-control" id="recipient-name">
-                            </div>
-                            <div class="mb-3">
-                                <label for="message-text" class="col-form-label">Message:</label>
-                                <textarea class="form-control" id="message-text"></textarea>
-                            </div>
-                        </form>
+                        <div>
+                            <input class="sutble-input" @bind-value="FocusRecordVM.ShortDescription" />
+
+                            <div id="toolbar"></div>
+                            <textarea id="editor" @bind="FocusRecordVM.Description"></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Send message</button>
+                        <div class="d-inline-flex">
+                            <input class="sutble-input me-auto" @bind-value="FocusRecordVM.Tags" />
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" @onclick="@(e => UpdateFocusRecord(e, FocusRecordVM))">Update</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script type="text/javascript">
+            var tinyMDE;
+            var commandBar;
+
+            function openMdEditor(description) {
+                if(typeof tinyMDE === 'undefined'
+                    || document.querySelector("div.TinyMDE") === null ){
+                    tinyMDE = new TinyMDE.Editor({ element: "editor", content: description });
+                    commandBar = new TinyMDE.CommandBar({
+                        element: "toolbar",
+                        editor: tinyMDE,
+                    });
+                }
+                else{
+                    tinyMDE.setContent(description);
+                }
+            }
+        </script>
     </Authorized>
 </AuthorizeView>
 
@@ -154,6 +187,7 @@
 
 
     private RecordVM NewRecordVM = new();
+    private RecordVM FocusRecordVM = new();
 
     private string TableDataPlaceholder = "Loading...";
 
@@ -161,8 +195,6 @@
 
     private string TagQuery = string.Empty;
     private string SearchQuery = string.Empty;
-
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,7 +217,8 @@
         BankVM = new GroupBankVM(campaign.GroupBank);
     }
 
-    protected override void OnAfterRender(bool firstRender)
+
+    protected async override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
 
@@ -241,13 +274,27 @@
             .ToList();
     }
 
-
     private async Task UpdateRecord(MouseEventArgs e, RecordVM recordVM)
     {
         var record = await service.UpdateRecord(recordVM.ToRecord());
 
         var idx = BankVM.Records.FindIndex(r => r.Id == record.Id);
         BankVM.Records[idx] = new RecordVM(record);
+    }
+
+    private async Task UpdateFocusRecord(MouseEventArgs e, RecordVM recordVM)
+    {
+        var desc = await JS.InvokeAsync<string>("tinyMDE.getContent");
+
+        recordVM.Description = desc;
+
+        await UpdateRecord(e, recordVM);
+    }
+
+    private async Task SelectFocusRecord(MouseEventArgs eventArgs, RecordVM record)
+    {
+        FocusRecordVM = record;
+        await JS.InvokeVoidAsync("openMdEditor", record.Description);
     }
 
 
@@ -269,4 +316,6 @@
         await service.DeleteRecord(record.Id);
         BankVM.Records.Remove(record);
     }
+
+    
 }

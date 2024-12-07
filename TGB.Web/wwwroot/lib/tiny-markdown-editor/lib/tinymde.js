@@ -20,7 +20,8 @@ class Editor {
     this.lastCommandState = null;
     this.listeners = {
       change: [],
-      selection: []
+      selection: [],
+      drop: []
     };
     let element = props.element;
     this.textarea = props.textarea;
@@ -69,6 +70,7 @@ class Editor {
     this.e.addEventListener("compositionend", e => this.handleInputEvent(e));
     document.addEventListener("selectionchange", e => this.handleSelectionChangeEvent(e));
     this.e.addEventListener("paste", e => this.handlePaste(e));
+    this.e.addEventListener("drop", e => this.handleDrop(e));
     this.lineElements = this.e.childNodes; // this will automatically update
   }
 
@@ -1275,6 +1277,14 @@ class Editor {
   }
 
   /**
+   * Event handler for the "drop" event
+   */
+  handleDrop(event) {
+    event.preventDefault();
+    this.fireDrop(event.dataTransfer);
+  }
+
+  /**
    * Event handler for "selectionchange" events.
    */
   handleSelectionChangeEvent() {
@@ -1684,8 +1694,19 @@ class Editor {
   }
 
   /**
+   * Fires a drop event.
+   */
+  fireDrop(dataTransfer) {
+    for (let listener of this.listeners.drop) {
+      listener({
+        dataTransfer
+      });
+    }
+  }
+
+  /**
    * Adds an event listener.
-   * @param {string} type The type of event to listen to. Can be 'change' or 'selection'
+   * @param {string} type The type of event to listen to. Can be 'change', 'selection' or 'drop'.
    * @param {*} listener Function of the type (event) => {} to be called when the event occurs.
    */
   addEventListener(type, listener) {
@@ -1694,6 +1715,9 @@ class Editor {
     }
     if (type.match(/^(?:selection|selectionchange)$/i)) {
       this.listeners.selection.push(listener);
+    }
+    if (type.match(/^(?:drop)$/i)) {
+      this.listeners.drop.push(listener);
     }
   }
 }

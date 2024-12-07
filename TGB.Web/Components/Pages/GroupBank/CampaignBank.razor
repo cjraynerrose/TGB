@@ -5,6 +5,7 @@
 @inject AuthenticationStateProvider asProvider
 @inject IJSRuntime JS
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
 @using TGB.Domain.Entities
 @using TGB.Web.Models
 
@@ -83,16 +84,25 @@
 
                                 <tr @key=record class="@css">
                                     <td scope="row">
-                                        <InputText @bind-Value="record.Name" />
+                                        <div class="d-inline-flex">
+                                            <button class="embiggener"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#recordModal"
+                                                    @onclick="@(e => SelectFocusRecord(e, record))">
+                                                <i class="fa-solid fa-expand"></i>
+                                            </button>
+
+                                            <InputText @bind-Value="record.Name" title="@record.Name"/>
+                                        </div>
                                     </td>
                                     <td>
-                                        <InputNumber @bind-Value="record.Amount" />
+                                        <InputNumber @bind-Value="record.Amount" title="@record.Amount"/>
                                     </td>
                                     <td>
-                                        <InputText @bind-Value="record.ShortDescription" />
+                                        <InputText @bind-Value="record.ShortDescription" title="@GetDescriptionTitle(record)" />
                                     </td>
                                     <td>
-                                        <InputText @bind-Value="record.Tags" />
+                                        <InputText @bind-Value="record.Tags" title="@record.Tags"/>
                                     </td>
                                     <td>
                                         <div class="btn-group">
@@ -318,5 +328,5 @@
         BankVM.Records.Remove(record);
     }
 
-    
+    private string GetDescriptionTitle(RecordVM record) => $"{record.ShortDescription}\r\n\r\n{record.Description}";
 }

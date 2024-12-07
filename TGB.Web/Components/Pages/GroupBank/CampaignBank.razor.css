@@ -5,6 +5,11 @@
     width: 100%;
 }
 
+.embiggener {
+    border: none;
+    background: none;
+}
+
     ::deep .table input:focus-visible,
     .sutble-input:focus-visible {
         outline: none;
@@ -24,7 +29,7 @@
 }
 
 .num-col {
-    width: 5%;
+    width: 8%;
 }
 
 .desc-col {

@@ -270,6 +270,7 @@
         return records
             .Where(r => 
                 r.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)
+                || r.ShortDescription.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)
                 || r.Description.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase))
             .ToList();
     }

@@ -7,6 +7,7 @@ using TGB.Web.Components;
 using TGB.Web.Components.Account;
 using Microsoft.AspNetCore.Components.Forms;
 using TGB.Domain.Services;
+using Microsoft.Extensions.Hosting;
 
 namespace TGB.Web
 {
@@ -99,6 +100,12 @@ namespace TGB.Web
 
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                db.Database.Migrate();
+            }
 
             app.Run();
         }

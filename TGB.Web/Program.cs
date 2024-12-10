@@ -103,11 +103,24 @@ namespace TGB.Web
 
             using (var scope = app.Services.CreateScope())
             {
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                db.Database.Migrate();
+                DatabaseThings(scope.ServiceProvider);
             }
 
             app.Run();
+        }
+
+        private static void DatabaseThings(IServiceProvider sp)
+        {
+            var config = sp.GetRequiredService<IConfiguration>();
+            var path = config.GetValue<string>("Sqlite:Path");
+
+            if(!string.IsNullOrEmpty(path) && !Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            var dbContext = sp.GetRequiredService<ApplicationDbContext>();
+            dbContext.Database.Migrate();
         }
     }
 }

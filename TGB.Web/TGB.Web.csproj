@@ -29,4 +29,10 @@
     <None Include="wwwroot\js\MainLayout.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="appsettings.Production.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

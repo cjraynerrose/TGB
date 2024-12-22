@@ -25,58 +25,7 @@ namespace TGB.Domain.Services
 
         
 
-        public async Task<Record> CreateRecord(Record record, Guid GroupBankId)
-        {
-            var bank = await _context.GroupBanks
-                .Where(gb => gb.Id == GroupBankId)
-                .FirstOrDefaultAsync();
-
-            if (bank == null)
-            {
-                throw new Exception("Group bank not found");
-            }
-
-            bank.Records.Add(record);
-
-            await _context.SaveChangesAsync();
-            return record;
-        }
-
-        public async Task<Record> UpdateRecord(Record record)
-        {
-            var local = _context.Set<Record>()
-                .Local
-                .FirstOrDefault(entry => entry.Id.Equals(record.Id));
-
-            if (local != null)
-            {
-                _context.Entry(local).State = EntityState.Detached;
-            }
-
-            _context.Entry(record).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return record;
-        }
-
-        public async Task DeleteRecord(Guid recordId)
-        {
-            Record record = await _context.Records
-                .Where(r => r.Id == recordId)
-                .FirstOrDefaultAsync();
-
-            if (record != null)
-            {
-                _context.Records.Remove(record);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<Record> GetRecord(Guid recordId)
-        {
-            return await _context.Records
-                .Where(r => r.Id == recordId)
-                .FirstOrDefaultAsync();
-        }
+        
 
         // NOTES
 
